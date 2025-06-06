@@ -29,4 +29,10 @@ python3 -m Evaluation.EvalSeq --spaces Results/MACVO_evaluate\@MH01/06_06_041831
 # Multiple Sequences
 python3 -m Evaluation.EvalSeq --dir Results/MACVO_evaluate/06_06_054355/
 # python3 -m Evaluation.EvalSeq --spaces Results/MACVO_evaluate\@MH01/06_06_041831\ Resutls/xxx Results/xxx
+
+# Save to csv file.
+python3 -m Evaluation.EvalSeq --dir Results/MACVO_evaluate/06_06_054355/  --csv Results/MACVO_evaluate/06_06_054355/eval_euroc.csv
+
+# Convert npy to txt
+python3 Evaluation/convert_npy_to_txt.py --dir Results/MACVO_evaluate/06_06_054355/
 ```

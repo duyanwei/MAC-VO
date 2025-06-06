@@ -104,8 +104,8 @@ class Trajectory:
         gt_traj  = cls.from_timed_SE3_numpy(box.path("ref_poses.npy"))
         est_traj = est_traj.align_origin(gt_traj)
         
-        gt_traj.time  = gt_traj.time - gt_traj.time[0]   #FIXME: this is only fore debugging purpose
-        est_traj.time = est_traj.time - est_traj.time[0] #FIXME: this is only fore debugging purpose
+        # gt_traj.time  = gt_traj.time - gt_traj.time[0]   #FIXME: this is only fore debugging purpose
+        # est_traj.time = est_traj.time - est_traj.time[0] #FIXME: this is only fore debugging purpose
         
         match align_time:
             case "est->gt":

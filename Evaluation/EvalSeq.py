@@ -3,7 +3,7 @@ from typing import Literal, Iterable
 import os
 import glob
 
-from Evaluation.MetricsSeq import evaluateATE, evaluateROE, evaluateRTE, evaluateRPE
+from Evaluation.MetricsSeq import evaluateATE, evaluateROE, evaluateRTE, evaluateRPE, evaluateAOE
 from Utility.Plot import getColor
 from Utility.PrettyPrint import ColoredTqdm, Logger, print_as_table, save_as_csv
 from Utility.Sandbox import Sandbox
@@ -53,6 +53,7 @@ def EvaluateSequences(spaces: list[str], correct_scale=False):
                 break
 
             ate_res = evaluateATE(gt_traj.data.as_evo, est_traj.data.as_evo, correct_scale=correct_scale)
+            aoe_res = evaluateAOE(gt_traj.data.as_evo, est_traj.data.as_evo, correct_scale=correct_scale)
             rte_res = evaluateRTE(gt_traj.data.as_evo, est_traj.data.as_evo, correct_scale=correct_scale)
             roe_res = evaluateROE(gt_traj.data.as_evo, est_traj.data.as_evo, correct_scale=correct_scale)
             rpe_res = evaluateRPE(gt_traj.data.as_evo, est_traj.data.as_evo, correct_scale=correct_scale)
@@ -60,6 +61,7 @@ def EvaluateSequences(spaces: list[str], correct_scale=False):
                 [
                     est_traj.name,
                     ate_res.stats["mean"], ate_res.stats["std"], ate_res.stats["rmse"],
+                    aoe_res.stats["mean"], aoe_res.stats["std"], aoe_res.stats["rmse"],
                     rte_res.stats["mean"], rte_res.stats["std"], rte_res.stats["rmse"],
                     roe_res.stats["mean"], roe_res.stats["std"], roe_res.stats["rmse"],
                     rpe_res.stats["mean"], rpe_res.stats["std"], rpe_res.stats["rmse"],
@@ -79,6 +81,7 @@ def EvaluateSequences(spaces: list[str], correct_scale=False):
     return [
         "Trajectory",
         f"μ_ATE{DECORATOR}", "σ_ATE", "RMSE_ATE",
+        f"μ_AOE{DECORATOR}", "σ_AOE", "RMSE_AOE",
         f"μ_RTE{DECORATOR}", "σ_RTE", "RMSE_RTE",
         f"μ_ROE{DECORATOR}", "σ_ROE", "RMSE_ROE",
         f"μ_RPE{DECORATOR}", "σ_RPE", "RMSE_RPE",
@@ -87,11 +90,12 @@ def EvaluateSequences(spaces: list[str], correct_scale=False):
 
 def EvaluateSequencesAvg(spaces: list[str]):
     _, metrics = EvaluateSequences(spaces)
-    return ["μ_ATE", "μ_RTE", "μ_ROE", "μ_RPE"], [
+    return ["μ_ATE", "μ_AOE", "μ_RTE", "μ_ROE", "μ_RPE"], [
         mean([m[1] for m in metrics]),
         mean([m[4] for m in metrics]),
         mean([m[7] for m in metrics]),
-        mean([m[10] for m in metrics])
+        mean([m[10] for m in metrics]),
+        mean([m[13] for m in metrics])
     ]
 
 
