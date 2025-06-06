@@ -1,5 +1,7 @@
 import argparse
 from typing import Literal, Iterable
+import os
+import glob
 
 from Evaluation.MetricsSeq import evaluateATE, evaluateROE, evaluateRTE, evaluateRPE
 from Utility.Plot import getColor
@@ -99,15 +101,22 @@ if __name__ == "__main__":
     args.add_argument("--correctScale", action="store_true")
     args.add_argument("--recursive", action="store_true", help="Find and evaluate on leaf sandboxes only.")
     args.add_argument("--csv", type=str, default=None, required=False)
+    args.add_argument("--dir", type=str, default=None)
     args = args.parse_args()
     
-    if args.recursive:
-        spaces = []
-        for space in args.spaces:
-            spaces.extend([str(child.folder.absolute()) for child in Sandbox.load(space).get_leaves()])
+    if args.dir:
+        assert(os.path.exists(args.dir))
+        spaces = glob.glob(os.path.join(args.dir, "**/config.yaml"), recursive=True)
+        spaces = sorted([os.path.dirname(space) for space in spaces])
         Logger.write("info", f"Found {len(spaces)} spaces to evaluate on.")
     else:
-        spaces = args.spaces
+        if args.recursive:
+            spaces = []
+            for space in args.spaces:
+                spaces.extend([str(child.folder.absolute()) for child in Sandbox.load(space).get_leaves()])
+            Logger.write("info", f"Found {len(spaces)} spaces to evaluate on.")
+        else:
+            spaces = args.spaces
 
     eval_header, eval_results = EvaluateSequences(
         spaces, correct_scale=args.correctScale

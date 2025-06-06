@@ -1,4 +1,6 @@
-FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04
+FROM nvidia/cuda:12.2.2-cudnn8-devel-ubuntu22.04
+
+ENV DEBIAN_FRONTEND noninteractive
 
 # Env vars for the nvidia-container-runtime.
 ENV NVIDIA_VISIBLE_DEVICES all
@@ -38,6 +40,10 @@ RUN sudo pip3 install --no-cache-dir timm==0.9.12 rerun-sdk==0.21.0 yacs
 RUN sudo pip3 install --no-cache-dir numpy 
 RUN sudo pip3 install --no-cache-dir pyyaml wandb pillow scipy flow_vis h5py 
 RUN sudo pip3 install --no-cache-dir xformers==0.0.27.post2 onnx
+<<<<<<< HEAD
 RUN sudo pip3 install --no-cache-dir torchvision jaxtyping typeguard==2.13.3
+=======
+RUN sudo pip3 install --no-cache-dir torchvision torch
+>>>>>>> (Reproducing) configured EuRoC
 
 CMD /bin/bash
