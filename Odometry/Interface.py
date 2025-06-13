@@ -51,7 +51,11 @@ class IOdometry(ABC, Generic[T_Data]):
             
             np.save(saveto.path("poses.npy"), np.concatenate([time_ns, body_poses], axis=-1))
             np.savez_compressed(saveto.path("tensor_map.npz"), **global_map.serialize())
-            
+
+            xyz = global_map.map_points.data["pos_Tw"].detach().cpu().numpy()
+            rgb = global_map.map_points.data["color"].detach().cpu().numpy()
+            np.savez_compressed(saveto.path("pointcloud.npz"), xyz=xyz, rgb=rgb)
+
             if len(reference_poses) > 1:    # At least two poses for a non-trivial trajectory
                 ref_body_poses: np.ndarray = torch.cat(reference_poses, dim=0).numpy()
                 ref_time_ns   : np.ndarray = np.array(reference_time, dtype=np.float64)[:, np.newaxis]

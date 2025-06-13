@@ -1,0 +1,5 @@
+type: TSRB_Stereo
+name: f4_manual_mapping
+args:
+    root: /data/
+    gt_pose: false
