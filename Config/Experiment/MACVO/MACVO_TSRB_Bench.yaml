@@ -1,0 +1,83 @@
+#
+# MAC-VO config tuned for TSRB rosbag benchmarking.
+#
+# Key differences from MACVO_Fast.yaml:
+#   - mapping: false      -> disables dense point cloud (biggest speedup, no accuracy loss)
+#   - num_point: 100      -> fewer keypoints per frame, reduces BA cost
+#   - decoder_depth: 8    -> shallower FlowFormer decoder (~1.5× faster inference)
+#
+# Expected throughput (RTX 3090, 640×480): ~18-22 fps vs ~12.5 fps for MACVO_Fast
+#
+
+Common:
+  device: &device cuda
+
+Odometry:
+  name: MACVO-TSRB-Bench
+  args:
+    device: *device
+    edgewidth: 32
+    num_point: 100
+    match_cov_default: 0.25
+    profile: false
+    mapping: false   # pure VO — no dense map needed for trajectory benchmark
+
+  cov:
+    obs:
+      type: MatchCovariance
+      args:
+        device: *device
+        kernel_size: 31
+        match_cov_default: 0.25
+        min_depth_cov: 0.05
+        min_flow_cov: 0.25
+
+  keypoint:
+    type: CovAwareSelector_NoDepth
+    args:
+      device: *device
+      kernel_size: 7
+      mask_width: 32
+      max_match_cov: 100.0
+
+  mappoint:
+    type: NoKeypointSelector
+    args:
+
+  frontend:
+    type: CUDAGraph_FlowFormerCovFrontend
+    args:
+      device: *device
+      weight: ./Model/MACVO_FrontendCov.pth
+      enc_dtype: fp16
+      dec_dtype: bf16
+      decoder_depth: 6
+      enforce_positive_disparity: false
+
+  motion:
+    type: StaticMotionModel
+    args:
+
+  outlier:
+    type: CovarianceSanityFilter
+    args:
+
+  postprocess:
+    type: MotionInterpolate
+    args:
+
+  keyframe:
+    type: AllKeyframe
+    args:
+
+  optimizer:
+    type: TwoFrame_PGO
+    args:
+      device: cpu
+      vectorize: true
+      parallel: true
+      graph_type: disp
+      autodiff: false
+
+Data: !include ../../Sequence/TSRB.yaml
+Preprocess: !include ../Common/Preprocess.yaml

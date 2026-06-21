@@ -46,3 +46,50 @@ MAC-VO defaults save estimated poses and visual map as `pose.npz` and `tensor_ma
 ```bash
 python3 vis_map.py --dir Results/MACVO_Mapping\@f4_taskdriven/06_13_163713/
 ```
+
+
+### TSRB Bench with ROSBAGS
+```bash
+xhost +local:docker
+docker run -u root --gpus all --runtime=nvidia -it --rm \
+  -e DISPLAY=$DISPLAY \
+  -v /tmp/.X11-unix:/tmp/.X11-unix \
+  -v /home/yanwei/slam_ws/src/opensource/dp/MAC-VO:/home/macvo/workspace \
+  -v /mnt/IVALAB/rosbags/tsrb/multi_run:/bags \
+  -v /mnt/DATA/experiments:/mnt/DATA/experiments \
+  macvo:latest
+```
+
+Command
+
+```bash
+python bench_rosbag.py --bag_root /bags --seq path1_1_ordered --stride 2 --num_rounds 5 # every other frame
+```
+
+```bash
+# In one terminal (host or container):
+rerun
+
+# Then run the benchmark with:
+python bench_rosbag.py --bag_root /bags --seq path1_1_ordered --useRR
+```
+
+```bash
+xhost +local:docker
+docker run -u root --gpus all --runtime=nvidia -it --rm \
+  --network host \
+  -e DISPLAY=$DISPLAY \
+  -v /tmp/.X11-unix:/tmp/.X11-unix \
+  -v /home/yanwei/slam_ws/src/opensource/dp/MAC-VO:/home/macvo/workspace \
+  -v /mnt/IVALAB/rosbags/tsrb/multi_run:/bags \
+  -v /mnt/DATA/experiments:/mnt/DATA/experiments \
+  macvo:latest
+```
+
+```bash
+python bench_rosbag.py \
+  --odom Config/Experiment/MACVO/MACVO_TSRB_Bench.yaml \
+  --bag_root /bags --seq path1_1_ordered \
+  --img_scale 0.5 --stride 2 \
+  --result_dir /mnt/DATA/experiments/mac_vo/
+```
